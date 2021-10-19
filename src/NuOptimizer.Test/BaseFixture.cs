@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -50,9 +50,9 @@ namespace NuOptimizer.Test
                 Assert.Fail($"'{testDataInput}' doesn't exist.");
 
             if (Directory.Exists(testDataDestination))
-                Directory.Delete(testDataDestination, recursive:true);
+                Directory.Delete(testDataDestination, recursive: true);
 
-            FileSystem.CopyDirectory( testDataInput, testDataDestination );
+            FileSystem.CopyDirectory(testDataInput, testDataDestination);
             TestDataRoot = testDataDestination;
         }
 
