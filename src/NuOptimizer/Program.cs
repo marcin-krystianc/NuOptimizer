@@ -1,12 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using CommandLine;
-using Microsoft.Build.Construction;
-using Microsoft.Build.Definition;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Evaluation.Context;
 using Microsoft.Build.Locator;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -36,7 +29,10 @@ namespace NuOptimizer
                 s.IgnoreUnknownArguments = false;
             });
 
-            await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options => { DoWork(options); });
+            await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options =>
+            {
+                await Task.Run(() => DoWork(options));
+            });
         }
 
         static void DoWork(Options options)

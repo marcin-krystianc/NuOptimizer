@@ -112,9 +112,6 @@ namespace NuOptimizer
                     var transitiveProjects = EnumerateOutVerticesTransitively(graph, project.FullPath)
                         .ToList();
 
-
-                    var tmp1 = transitiveProjects.SelectMany(x => projectsDictionary[x].GetItems("PackageReference")).ToList();
-
                     var centralPackages = project.GetItems("PackageVersion")
                         .Select(x => x.EvaluatedInclude)
                         .Distinct()
