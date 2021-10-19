@@ -140,7 +140,10 @@ namespace NuOptimizer
 
                     foreach (var projectPath in transitiveProjects)
                     {
-                        var relativePath = Path.GetRelativePath(Path.GetDirectoryName(project.FullPath), projectPath);
+                        var relativePath = Path.GetRelativePath(Path.GetDirectoryName(project.FullPath), projectPath)
+                            // convert to windows-style separators
+                            .Replace("/", "\\");
+
                         var item = projectPropsElement.AddItem(ProjectReference, relativePath);
                         /*
                         var includeAssetsMetadata = item.AddMetadata(IncludeAssets, "none");
