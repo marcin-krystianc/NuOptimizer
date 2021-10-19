@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 using DependencyGraphFlattener;
 using NUnit.Framework;
@@ -18,9 +18,10 @@ namespace NuOptimizer.Test
             var testDataRoot = TestDataRoot;
             var _uut = new ProjectScanner();
             var actualProjects =
-                _uut.EnumerateProjects(testDataRoot).Select(x => Path.GetRelativePath(testDataRoot, x));
+                _uut.EnumerateProjects(testDataRoot)
+                    .Select(x => Path.GetRelativePath(testDataRoot, x).Replace("/", "\\"));
 
-            Assert.That(actualProjects, Is.EquivalentTo(new []{"csproj\\Project1.csproj", "fsproj\\Project2.fsproj"}));
+            Assert.That(actualProjects, Is.EquivalentTo(new[] { "csproj\\Project1.csproj", "fsproj\\Project2.fsproj" }));
         }
     }
 }

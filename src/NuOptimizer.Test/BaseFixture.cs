@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -50,9 +50,9 @@ namespace NuOptimizer.Test
                 Assert.Fail($"'{testDataInput}' doesn't exist.");
 
             if (Directory.Exists(testDataDestination))
-                Directory.Delete(testDataDestination, recursive:true);
+                Directory.Delete(testDataDestination, recursive: true);
 
-            FileSystem.CopyDirectory( testDataInput, testDataDestination );
+            FileSystem.CopyDirectory(testDataInput, testDataDestination);
             TestDataRoot = testDataDestination;
         }
 
@@ -84,7 +84,7 @@ namespace NuOptimizer.Test
                 var actualFileInfo = actualFiles[fileKey];
                 var expectedFileInfo = expectedFiles[fileKey];
 
-                string ReadAndSanitize(string path) => string.Join(Environment.NewLine,
+                string ReadAndSanitize(string path) => string.Join("\r\n",
                     File.ReadLines(path).Where(x => !string.IsNullOrWhiteSpace(x)));
 
                 var actualContent = ReadAndSanitize(actualFileInfo.FullName);

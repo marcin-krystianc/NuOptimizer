@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace NuOptimizer.Test
 {
@@ -17,7 +17,7 @@ namespace NuOptimizer.Test
         [TestCase(2)]
         public void CreatesDirectoryBuildTargets(int repeats)
         {
-            for (var i=0; i < repeats; i++)
+            for (var i = 0; i < repeats; i++)
             {
                 _uut.Apply(TestDataRoot);
             }
@@ -27,7 +27,7 @@ namespace NuOptimizer.Test
         [TestCase(2)]
         public void UpdatesDirectoryBuildTargets(int repeats)
         {
-            for (var i=0; i < repeats; i++)
+            for (var i = 0; i < repeats; i++)
             {
                 _uut.Apply(TestDataRoot);
             }
@@ -37,7 +37,7 @@ namespace NuOptimizer.Test
         [TestCase(2)]
         public void CreatesProjectProps(int repeats)
         {
-            for (var i=0; i < repeats; i++)
+            for (var i = 0; i < repeats; i++)
             {
                 _uut.Apply(TestDataRoot);
             }

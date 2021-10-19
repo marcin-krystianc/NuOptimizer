@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -140,7 +140,10 @@ namespace NuOptimizer
 
                     foreach (var projectPath in transitiveProjects)
                     {
-                        var relativePath = Path.GetRelativePath(Path.GetDirectoryName(project.FullPath), projectPath);
+                        var relativePath = Path.GetRelativePath(Path.GetDirectoryName(project.FullPath), projectPath)
+                            // convert to windows-style separators
+                            .Replace("/", "\\");
+
                         var item = projectPropsElement.AddItem(ProjectReference, relativePath);
                         /*
                         var includeAssetsMetadata = item.AddMetadata(IncludeAssets, "none");
@@ -196,7 +199,7 @@ namespace NuOptimizer
         private IEnumerable<string> EnumerateOutVerticesTransitively(BidirectionalGraph<string, Edge<string>> graph, string vertex)
         {
             var visitedProjects = new HashSet<string>();
-            var queue = new Queue<string>(new []{vertex});
+            var queue = new Queue<string>(new[] { vertex });
             while (queue.Count > 0)
             {
                 var current = queue.Dequeue();
