@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuOptimizer", "NuOptimizer\NuOptimizer.csproj", "{1A8145C3-4185-44F8-B3E9-3CF5F394BFB5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuOptimizer", "src\NuOptimizer\NuOptimizer.csproj", "{1A8145C3-4185-44F8-B3E9-3CF5F394BFB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuOptimizer.Test", "NuOptimizer.Test\NuOptimizer.Test.csproj", "{C1AAB0A8-67CC-4DF3-BDFE-65E89BB7A9AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuOptimizer.Test", "src\NuOptimizer.Test\NuOptimizer.Test.csproj", "{C1AAB0A8-67CC-4DF3-BDFE-65E89BB7A9AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
