@@ -84,7 +84,7 @@ namespace NuOptimizer.Test
                 var actualFileInfo = actualFiles[fileKey];
                 var expectedFileInfo = expectedFiles[fileKey];
 
-                string ReadAndSanitize(string path) => string.Join(Environment.NewLine,
+                string ReadAndSanitize(string path) => string.Join("\r\n",
                     File.ReadLines(path).Where(x => !string.IsNullOrWhiteSpace(x)));
 
                 var actualContent = ReadAndSanitize(actualFileInfo.FullName);
