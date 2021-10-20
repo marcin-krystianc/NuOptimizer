@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CommandLine;
 using Microsoft.Build.Locator;
@@ -6,9 +7,9 @@ using Serilog.Sinks.SystemConsole.Themes;
 
 namespace NuOptimizer
 {
-    public class Options
+    class Options
     {
-        [Option("root-path", Required = false, Default = null, HelpText = "")]
+        [Option("root-path", Required = true, HelpText = "Location of the codebase to process.")]
         public string RootPath { get; set; }
     }
 
@@ -22,26 +23,31 @@ namespace NuOptimizer
                 .WriteTo.Console(theme: ConsoleTheme.None)
                 .CreateLogger();
 
-            var parser = new Parser(s =>
-            {
-                s.AutoHelp = true;
-                s.CaseSensitive = false;
-                s.IgnoreUnknownArguments = false;
-            });
-
-            await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options =>
+            var parserResult = await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options =>
             {
                 await Task.Run(() => DoWork(options));
             });
+            parserResult.WithNotParsed(_ => DisplayHelp());
+        }
+
+        static void DisplayHelp()
+        {
+            var helpText =
+                "NuOptimizer helps in reducing the problem of exponential complexity in the NuGet's restore algorithm.\n" +
+                "It analyses the transitive dependency graph of each project in the codebase and injects extra \n" +
+                "<ProjectReference> and <PackageReference> items so the dependency graph becomes flat.\n" +
+                "If the dependency graph changes, the NuOptimizer needs to be run again to re-generate these extra items.\n" +
+                "\n" +
+                "Note, that NuOptimizer can flatten dependency graphs safely only when the CPVM (Central Package Version Management) is enabled." +
+                "\n";
+
+            Console.Write(helpText);
         }
 
         static void DoWork(Options options)
         {
-            if (options.RootPath != null)
-            {
-                var dependencyGraphFlattener = new DependencyGraphFlattener();
-                dependencyGraphFlattener.Apply(options.RootPath);
-            }
+            var dependencyGraphFlattener = new DependencyGraphFlattener();
+            dependencyGraphFlattener.Apply(options.RootPath);
         }
     }
 }
