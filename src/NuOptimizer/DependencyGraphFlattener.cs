@@ -8,6 +8,7 @@ using Microsoft.Build.Definition;
 using Microsoft.Build.Evaluation;
 using Microsoft.Build.Evaluation.Context;
 using QuikGraph;
+using Serilog;
 
 namespace NuOptimizer
 {
@@ -24,6 +25,15 @@ namespace NuOptimizer
         {
             var projectScanner = new ProjectScanner();
             var projectPaths = projectScanner.EnumerateProjects(rootPath).ToList();
+
+            Log.Information($"Working directory is '{rootPath}'.");
+
+            var subDir = Path.Combine(rootPath, NuOptimizerSubDir);
+            if (Directory.Exists(subDir))
+            {
+                Log.Information($"Cleaning files in '{NuOptimizerSubDir}'.");
+                Directory.Delete(subDir, recursive: true);
+            }
 
             // Directory.Build.targets
             using (var projectCollection = new ProjectCollection())
@@ -53,6 +63,8 @@ namespace NuOptimizer
                     var import = rootPropsElement.AddImport(@".nuoptimizer\.nuoptimizer.props");
                     import.Condition = @"Exists('.nuoptimizer\.nuoptimizer.props')";
                     import.Label = NuOptimizerLabel;
+
+                    Log.Information($"Writing '{Path.GetRelativePath(rootPath, rootPropsElement.FullPath)}'.");
                     rootPropsElement.Save(directoryBuildTargetsPath);
                 }
             }
@@ -60,16 +72,16 @@ namespace NuOptimizer
             // .nuoptimizer/.nuoptimizer.props
             using (var projectCollection = new ProjectCollection())
             {
-                {
-                    var nuOptimizerFile = Path.Combine(rootPath, NuOptimizerSubDir, ".nuoptimizer.props");
-                    Directory.CreateDirectory(Path.GetDirectoryName(nuOptimizerFile));
-                    File.WriteAllText(nuOptimizerFile, "<Project></Project>");
-                    var nuOptimizerElement = ProjectRootElement.Open(nuOptimizerFile, projectCollection);
-                    var import = nuOptimizerElement.AddImport(@"$(MSBuildProjectName).props");
-                    import.Condition = @" '$(ManagePackageVersionsCentrally)' == 'true'" +
-                                       @" and Exists('$(MSBuildProjectName).props') ";
-                    nuOptimizerElement.Save();
-                }
+                var nuOptimizerFile = Path.Combine(subDir, ".nuoptimizer.props");
+                Directory.CreateDirectory(Path.GetDirectoryName(nuOptimizerFile));
+                File.WriteAllText(nuOptimizerFile, "<Project></Project>");
+                var nuOptimizerElement = ProjectRootElement.Open(nuOptimizerFile, projectCollection);
+                var import = nuOptimizerElement.AddImport(@"$(MSBuildProjectName).props");
+                import.Condition = @" '$(ManagePackageVersionsCentrally)' == 'true'" +
+                                   @" and Exists('$(MSBuildProjectName).props') ";
+
+                Log.Information($"Writing '{Path.GetRelativePath(rootPath, nuOptimizerElement.FullPath)}'.");
+                nuOptimizerElement.Save();
             }
 
             using (var projectCollection = new ProjectCollection())
@@ -98,6 +110,7 @@ namespace NuOptimizer
                 var graph = BuildProjectGraph(projects.Select(x => x.FullPath));
                 var projectsDictionary = projects.ToDictionary(x => x.FullPath, x => x);
 
+                var propsCounter = 0;
                 foreach (var project in projects)
                 {
                     var isManagedCentrally = project.GetProperty("ManagePackageVersionsCentrally");
@@ -105,7 +118,7 @@ namespace NuOptimizer
                         continue;
 
                     var projectName = project.GetProperty("MSBuildProjectName").EvaluatedValue;
-                    var projectPropsPath = Path.Combine(rootPath, NuOptimizerSubDir, $"{projectName}.props");
+                    var projectPropsPath = Path.Combine(subDir, $"{projectName}.props");
                     File.WriteAllText(projectPropsPath, "<Project></Project>");
                     var projectPropsElement = ProjectRootElement.Open(projectPropsPath, new ProjectCollection());
 
@@ -153,8 +166,11 @@ namespace NuOptimizer
                         privateAssetsMetadata.ExpressedAsAttribute = true;
                     }
 
+                    propsCounter++;
                     projectPropsElement.Save();
                 }
+
+                Log.Information($"Written {propsCounter} '{Path.Combine(NuOptimizerSubDir, "*.props")}' files.");
             }
         }
 
