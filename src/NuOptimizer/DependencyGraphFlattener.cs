@@ -26,7 +26,7 @@ namespace NuOptimizer
             var projectScanner = new ProjectScanner();
             var projectPaths = projectScanner.EnumerateProjects(rootPath).ToList();
 
-            Log.Information($"Working directory is '{rootPath}'.");
+            Log.Information($"Working directory: '{rootPath}'.");
 
             var subDir = Path.Combine(rootPath, NuOptimizerSubDir);
             if (Directory.Exists(subDir))
