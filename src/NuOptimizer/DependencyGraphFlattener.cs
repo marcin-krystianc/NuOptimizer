@@ -203,6 +203,8 @@ namespace NuOptimizer
                     .Select(x => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project.FullPath), x)))
                     .ToList();
 
+                graph.AddVertex(projectPath);
+
                 foreach (var referencedProject in referencedProjects)
                 {
                     if (!File.Exists(referencedProject))
