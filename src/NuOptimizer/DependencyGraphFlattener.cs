@@ -187,6 +187,7 @@ namespace NuOptimizer
             };
 
             var processedProjects = new HashSet<string>();
+            var missingProjects = new HashSet<string>();
             var graph = new BidirectionalGraph<string, Edge<string>>();
             var queue = new Queue<string>(projectPaths.Select(Path.GetFullPath));
 
@@ -204,6 +205,17 @@ namespace NuOptimizer
 
                 foreach (var referencedProject in referencedProjects)
                 {
+                    if (!File.Exists(referencedProject))
+                    {
+                        // TODO - implement strict mode?
+                        if (missingProjects.Add(referencedProject))
+                        {
+                            Log.Warning($"File '{referencedProject}' doesn't exist!");
+                        }
+
+                        continue;
+                    }
+
                     graph.AddVerticesAndEdge(new Edge<string>(projectPath, referencedProject));
                     queue.Enqueue(referencedProject);
                 }

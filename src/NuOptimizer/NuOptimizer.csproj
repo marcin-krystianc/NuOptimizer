@@ -19,6 +19,5 @@
     <PackageReference Include="Microsoft.Build" Version="16.9.0" ExcludeAssets="runtime"/>
     <PackageReference Include="Microsoft.Build.Locator" Version="1.4.1"/>
     <PackageReference Include="QuikGraph" Version="2.3.0"/>
-    <PackageReference Include="Microsoft.VisualBasic" Version="10.0.1" />
   </ItemGroup>
 </Project>
