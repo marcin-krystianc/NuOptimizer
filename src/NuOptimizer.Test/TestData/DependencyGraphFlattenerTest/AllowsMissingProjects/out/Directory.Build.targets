@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <Import Project=".nuoptimizer\.nuoptimizer.props" Condition="Exists('.nuoptimizer\.nuoptimizer.props')" Label="nuoptimizer" />
+</Project>

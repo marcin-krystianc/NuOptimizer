@@ -9,6 +9,7 @@ using Microsoft.Build.Locator;
 using Microsoft.VisualBasic.FileIO;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
+using Serilog;
 
 namespace NuOptimizer.Test
 {
@@ -30,6 +31,9 @@ namespace NuOptimizer.Test
         static BaseFixture()
         {
             MSBuildLocator.RegisterDefaults();
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.NUnitOutput()
+                .CreateLogger();
         }
 
         public BaseFixture(bool validateOutput = true)
