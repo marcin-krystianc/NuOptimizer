@@ -95,7 +95,7 @@ namespace NuOptimizer
                     EvaluationContext = EvaluationContext.Create(EvaluationContext.SharingPolicy.Shared),
                 };
 
-                var projects = new ConcurrentDictionary<string, Project>();
+                var projects = new ConcurrentDictionary<string, Project>(StringComparer.OrdinalIgnoreCase);
 
                 foreach (var projectPath in projectPaths)
                 {
@@ -136,7 +136,7 @@ namespace NuOptimizer
                     var transitivePackages = transitiveProjects
                         .SelectMany(x => projects[x].GetItems("PackageReference"))
                         .Select(x => x.EvaluatedInclude)
-                        .Distinct()
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
                         .OrderBy(x => x)
                         .ToList();
 
@@ -179,8 +179,8 @@ namespace NuOptimizer
         private BidirectionalGraph<string, Edge<string>> BuildProjectGraph(
             IEnumerable<string> paths, Func<string, Project> projectLoader)
         {
-            var processedProjects = new HashSet<string>();
-            var missingProjects = new HashSet<string>();
+            var processedProjects = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var missingProjects = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var graph = new BidirectionalGraph<string, Edge<string>>();
             var queue = new Queue<string>(paths);
 
@@ -191,28 +191,29 @@ namespace NuOptimizer
                     continue;
 
                 var project = projectLoader(projectPath);
-                var referencedProjects = project.GetItems("ProjectReference")
+                var referencedPaths = project.GetItems("ProjectReference")
                     .Select(x => x.EvaluatedInclude)
                     .Select(x => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project.FullPath), x)))
                     .ToList();
 
-                graph.AddVertex(projectPath);
+                graph.AddVertex(project.FullPath);
 
-                foreach (var referencedProject in referencedProjects)
+                foreach (var referencedPath in referencedPaths)
                 {
-                    if (!File.Exists(referencedProject))
+                    if (!File.Exists(referencedPath))
                     {
                         // TODO - implement strict mode?
-                        if (missingProjects.Add(referencedProject))
+                        if (missingProjects.Add(referencedPath))
                         {
-                            Log.Warning($"File '{referencedProject}' doesn't exist!");
+                            Log.Warning($"File '{referencedPath}' doesn't exist!");
                         }
 
                         continue;
                     }
 
-                    graph.AddVerticesAndEdge(new Edge<string>(projectPath, referencedProject));
-                    queue.Enqueue(referencedProject);
+                    var referencedProject = projectLoader(referencedPath);
+                    graph.AddVerticesAndEdge(new Edge<string>(project.FullPath, referencedProject.FullPath));
+                    queue.Enqueue(referencedPath);
                 }
             }
 
