@@ -73,5 +73,16 @@ namespace NuOptimizer.Test
                 _uut.Apply(Path.Combine(TestDataRoot, "Root"));
             }
         }
+
+        [TestCase(1)]
+        [TestCase(2)]
+        [Platform("Win32NT")]
+        public void HandlesInconsistentCasing(int repeats)
+        {
+            for (var i = 0; i < repeats; i++)
+            {
+                _uut.Apply(TestDataRoot);
+            }
+        }
     }
 }
