@@ -76,6 +76,7 @@ namespace NuOptimizer.Test
 
         [TestCase(1)]
         [TestCase(2)]
+        [Platform("Win32NT")]
         public void HandlesInconsistentCasing(int repeats)
         {
             for (var i = 0; i < repeats; i++)
