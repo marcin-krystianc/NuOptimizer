@@ -22,4 +22,7 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="TestData\DependencyGraphFlattenerTest\CreatesDirectoryBuildTargets\in" />
+    </ItemGroup>
 </Project>

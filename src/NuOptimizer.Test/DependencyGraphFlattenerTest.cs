@@ -1,3 +1,4 @@
+using System.IO;
 using NUnit.Framework;
 
 namespace NuOptimizer.Test
@@ -45,7 +46,7 @@ namespace NuOptimizer.Test
 
         [TestCase(1)]
         [TestCase(2)]
-        public void AllowsMissingProjects(int repeats)
+        public void HandlesMissingProjects(int repeats)
         {
             for (var i = 0; i < repeats; i++)
             {
@@ -60,6 +61,16 @@ namespace NuOptimizer.Test
             for (var i = 0; i < repeats; i++)
             {
                 _uut.Apply(TestDataRoot);
+            }
+        }
+
+        [TestCase(1)]
+        [TestCase(2)]
+        public void HandlesProjectsOutsideRoot(int repeats)
+        {
+            for (var i = 0; i < repeats; i++)
+            {
+                _uut.Apply(Path.Combine(TestDataRoot, "Root"));
             }
         }
     }
