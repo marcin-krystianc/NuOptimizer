@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,7 +18,6 @@ namespace NuOptimizer
         const string NuOptimizerLabel = "nuoptimizer";
         const string PackageReference = "PackageReference";
         const string ProjectReference = "ProjectReference";
-        const string IncludeAssets = "IncludeAssets";
         const string PrivateAssets = "PrivateAssets";
         const string NuOptimizerSubDir = ".nuoptimizer";
 
@@ -95,11 +95,14 @@ namespace NuOptimizer
                     EvaluationContext = EvaluationContext.Create(EvaluationContext.SharingPolicy.Shared),
                 };
 
-                var projects = projectPaths
-                    .Select(x => Project.FromFile(x, projectOptions))
-                    .ToList();
+                var projects = new ConcurrentDictionary<string, Project>();
 
-                var duplicate = projects
+                foreach (var projectPath in projectPaths)
+                {
+                    projects.TryAdd(projectPath, Project.FromFile(projectPath, projectOptions));
+                }
+
+                var duplicate = projects.Values
                     .GroupBy(x => x.GetProperty("MSBuildProjectName").EvaluatedValue)
                     .FirstOrDefault(x => Enumerable.Count<Project>(x) >= 2);
 
@@ -107,11 +110,10 @@ namespace NuOptimizer
                     throw new ApplicationException($"Unexpected duplicates in project file names {duplicate.Key}:" +
                                                    duplicate.Select(x => $"{Environment.NewLine}'{x.FullPath}'"));
 
-                var graph = BuildProjectGraph(projects.Select(x => x.FullPath));
-                var projectsDictionary = projects.ToDictionary(x => x.FullPath, x => x);
+                var graph = BuildProjectGraph(projects.Keys, x => projects.GetOrAdd(x, x => Project.FromFile(x, projectOptions)));
 
                 var propsCounter = 0;
-                foreach (var project in projects)
+                foreach (var project in projectPaths.Select(x => projects[x]))
                 {
                     var isManagedCentrally = project.GetProperty("ManagePackageVersionsCentrally");
                     if (isManagedCentrally?.EvaluatedValue != "true")
@@ -132,7 +134,7 @@ namespace NuOptimizer
                         .ToList();
 
                     var transitivePackages = transitiveProjects
-                        .SelectMany(x => projectsDictionary[x].GetItems("PackageReference"))
+                        .SelectMany(x => projects[x].GetItems("PackageReference"))
                         .Select(x => x.EvaluatedInclude)
                         .Distinct()
                         .OrderBy(x => x)
@@ -174,22 +176,13 @@ namespace NuOptimizer
             }
         }
 
-        private BidirectionalGraph<string, Edge<string>> BuildProjectGraph(IEnumerable<string> projectPaths)
+        private BidirectionalGraph<string, Edge<string>> BuildProjectGraph(
+            IEnumerable<string> paths, Func<string, Project> projectLoader)
         {
-            using var projectCollection = new ProjectCollection();
-            var projectOptions = new ProjectOptions
-            {
-                ProjectCollection = projectCollection,
-                LoadSettings = ProjectLoadSettings.IgnoreEmptyImports | ProjectLoadSettings.IgnoreInvalidImports |
-                               ProjectLoadSettings.RecordDuplicateButNotCircularImports |
-                               ProjectLoadSettings.IgnoreMissingImports,
-                EvaluationContext = EvaluationContext.Create(EvaluationContext.SharingPolicy.Shared),
-            };
-
             var processedProjects = new HashSet<string>();
             var missingProjects = new HashSet<string>();
             var graph = new BidirectionalGraph<string, Edge<string>>();
-            var queue = new Queue<string>(projectPaths.Select(Path.GetFullPath));
+            var queue = new Queue<string>(paths);
 
             while (queue.Count > 0)
             {
@@ -197,7 +190,7 @@ namespace NuOptimizer
                 if (!processedProjects.Add(projectPath))
                     continue;
 
-                var project = Project.FromFile(projectPath, projectOptions);
+                var project = projectLoader(projectPath);
                 var referencedProjects = project.GetItems("ProjectReference")
                     .Select(x => x.EvaluatedInclude)
                     .Select(x => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project.FullPath), x)))
@@ -226,7 +219,8 @@ namespace NuOptimizer
             return graph;
         }
 
-        private IEnumerable<string> EnumerateOutVerticesTransitively(BidirectionalGraph<string, Edge<string>> graph, string vertex)
+        private IEnumerable<string> EnumerateOutVerticesTransitively(BidirectionalGraph<string, Edge<string>> graph,
+            string vertex)
         {
             var visitedProjects = new HashSet<string>();
             var queue = new Queue<string>(new[] { vertex });
