@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Lib1\Lib1.fsproj" />
+    <ProjectReference Include="..\lib1\Lib1.fsproj" />
     <ProjectReference Include="..\lib2\lib2.csproj" />
   </ItemGroup>
 

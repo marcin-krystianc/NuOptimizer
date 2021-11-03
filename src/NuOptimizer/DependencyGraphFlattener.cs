@@ -196,7 +196,7 @@ namespace NuOptimizer
                     .Select(x => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project.FullPath), x)))
                     .ToList();
 
-                graph.AddVertex(project.FullPath);
+                graph.AddVertex(projectPath);
 
                 foreach (var referencedPath in referencedPaths)
                 {
@@ -212,7 +212,7 @@ namespace NuOptimizer
                     }
 
                     var referencedProject = projectLoader(referencedPath);
-                    graph.AddVerticesAndEdge(new Edge<string>(project.FullPath, referencedProject.FullPath));
+                    graph.AddVerticesAndEdge(new Edge<string>(projectPath, referencedProject.FullPath));
                     queue.Enqueue(referencedPath);
                 }
             }
