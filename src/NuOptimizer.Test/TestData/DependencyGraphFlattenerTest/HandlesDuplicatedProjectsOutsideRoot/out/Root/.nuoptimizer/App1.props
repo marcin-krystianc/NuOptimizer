@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Sub\Lib1\Lib.fsproj" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

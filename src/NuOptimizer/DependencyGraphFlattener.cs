@@ -96,10 +96,11 @@ namespace NuOptimizer
                 };
 
                 var projects = new ConcurrentDictionary<string, Project>(StringComparer.OrdinalIgnoreCase);
+                Project LoadProject(string x) => projects.GetOrAdd(Path.GetFullPath(x), key => Project.FromFile(key, projectOptions));
 
                 foreach (var projectPath in projectPaths)
                 {
-                    projects.TryAdd(projectPath, Project.FromFile(projectPath, projectOptions));
+                    LoadProject(projectPath);
                 }
 
                 var duplicate = projects.Values
@@ -110,7 +111,7 @@ namespace NuOptimizer
                     throw new ApplicationException($"Unexpected duplicates in project file names {duplicate.Key}:" +
                                                    duplicate.Select(x => $"{Environment.NewLine}'{x.FullPath}'"));
 
-                var graph = BuildProjectGraph(projects.Keys, x => projects.GetOrAdd(x, x => Project.FromFile(x, projectOptions)));
+                var graph = BuildProjectGraph(projects.Keys, LoadProject);
 
                 var propsCounter = 0;
                 foreach (var project in projectPaths.Select(x => projects[x]))
@@ -187,7 +188,7 @@ namespace NuOptimizer
             while (queue.Count > 0)
             {
                 var projectPath = queue.Dequeue();
-                var project = projectLoader(projectPath);
+                var project = projectLoader.Invoke(projectPath);
                 if (!processedProjects.Add(project.FullPath))
                     continue;
 
@@ -211,9 +212,9 @@ namespace NuOptimizer
                         continue;
                     }
 
-                    var referencedProject = projectLoader(referencedPath);
+                    var referencedProject = projectLoader.Invoke(referencedPath);
                     graph.AddVerticesAndEdge(new Edge<string>(project.FullPath, referencedProject.FullPath));
-                    queue.Enqueue(referencedPath);
+                    queue.Enqueue(referencedProject.FullPath);
                 }
             }
 
