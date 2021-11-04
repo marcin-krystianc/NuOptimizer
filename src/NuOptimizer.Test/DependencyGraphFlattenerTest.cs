@@ -84,5 +84,25 @@ namespace NuOptimizer.Test
                 _uut.Apply(TestDataRoot);
             }
         }
+
+        [TestCase(1)]
+        [TestCase(2)]
+        public void HandlesDuplicatedProjectsOutsideRoot(int repeats)
+        {
+            for (var i = 0; i < repeats; i++)
+            {
+                _uut.Apply(Path.Combine(TestDataRoot, "Root"));
+            }
+        }
+
+        [TestCase(1)]
+        [TestCase(2)]
+        public void HandlesNonCanonicalReferences(int repeats)
+        {
+            for (var i = 0; i < repeats; i++)
+            {
+                _uut.Apply(Path.Combine(TestDataRoot, "src"));
+            }
+        }
     }
 }

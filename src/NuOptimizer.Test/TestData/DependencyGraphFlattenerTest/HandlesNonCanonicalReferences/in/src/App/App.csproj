@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lib1\Lib1.fsproj" />
+    <ProjectReference Include="..\Lib2\Lib2.csproj" />
+  </ItemGroup>
+
+</Project>
