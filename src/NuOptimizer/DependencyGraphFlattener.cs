@@ -24,7 +24,9 @@ namespace NuOptimizer
         public void Apply(string rootPath)
         {
             var projectScanner = new ProjectScanner();
-            var projectPaths = projectScanner.EnumerateProjects(rootPath).ToList();
+            var projectPaths = projectScanner.EnumerateProjects(rootPath)
+                .Select(Path.GetFullPath)
+                .ToList();
 
             Log.Information($"Working directory: '{rootPath}'.");
 

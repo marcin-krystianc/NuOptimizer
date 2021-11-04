@@ -46,6 +46,25 @@ namespace NuOptimizer.Test
 
         [TestCase(1)]
         [TestCase(2)]
+        public void CreatesProjectPropsRelativeRoot(int repeats)
+        {
+            for (var i = 0; i < repeats; i++)
+            {
+                var currentDirectory = Directory.GetCurrentDirectory();
+                try
+                {
+                    Directory.SetCurrentDirectory(TestDataRoot);
+                    _uut.Apply(".");
+                }
+                finally
+                {
+                    Directory.SetCurrentDirectory(currentDirectory);
+                }
+            }
+        }
+
+        [TestCase(1)]
+        [TestCase(2)]
         public void HandlesMissingProjects(int repeats)
         {
             for (var i = 0; i < repeats; i++)
